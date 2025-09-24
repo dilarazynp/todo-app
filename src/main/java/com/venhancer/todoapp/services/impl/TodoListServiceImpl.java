@@ -1,6 +1,9 @@
 package com.venhancer.todoapp.services.impl;
 
+import com.venhancer.todoapp.dto.TodoListRequestDTO;
+import com.venhancer.todoapp.dto.TodoListResponseDTO;
 import com.venhancer.todoapp.entity.TodoList;
+import com.venhancer.todoapp.mapper.TodoListMapper;
 import com.venhancer.todoapp.repository.TodoListRepository;
 import com.venhancer.todoapp.services.TodoListService;
 import org.springframework.stereotype.Service;
@@ -12,42 +15,50 @@ import java.util.List;
 @Service
 public class TodoListServiceImpl implements TodoListService {
 
+
+    private final TodoListMapper todoListMapper;
     private final TodoListRepository repo;
 
-    public TodoListServiceImpl(TodoListRepository repo) {
+    public TodoListServiceImpl(TodoListMapper todoListMapper, TodoListRepository repo) {
+        this.todoListMapper = todoListMapper;
         this.repo = repo;
     }
 
     @Override
-    public TodoList create(TodoList req) {
-        if (req.getTitle() == null || req.getTitle().isBlank()) {
-            throw new IllegalArgumentException("Title is required");
-        }
-        return repo.save(req);
+    public TodoListResponseDTO save(TodoListRequestDTO req) {
+        TodoList entity = todoListMapper.toEntity(req);
+        TodoList saved  = repo.save(entity);
+        return todoListMapper.toDto(saved);
     }
 
     @Override
-    public List<TodoList> getAllTodoList() {
-        return repo.findAll();
+    public List<TodoListResponseDTO> getAllTodoList() {
+        return todoListMapper.toDtoList(repo.findAll());
     }
 
     @Override
-    public TodoList get(Long id) {
-        return repo.findById(id)
+    public TodoListResponseDTO get(Long id) {
+        TodoList e = repo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Todo not found: " + id));
+        return todoListMapper.toDto(e);
     }
 
     @Override
-    public List<TodoList> getTodoListWithParams(String title, Boolean completed) {
-        if (title != null && completed != null) {
-            return repo.findByTitleContainingAndCompleted(title, completed);
-        } else if (title != null) {
-            return repo.findByTitleContaining(title);
+    public List<TodoListResponseDTO> getTodoListWithParams(String title, Boolean completed) {
+        List<TodoList> result;
+
+        boolean hasTitle = title != null && !title.isBlank();
+        if (hasTitle && completed != null) {
+            result = repo.findByTitleContainingAndCompleted(title, completed);
+        } else if (hasTitle) {
+            result = repo.findByTitleContaining(title);
         } else if (completed != null) {
-            return repo.findByCompleted(completed);
+            result = repo.findByCompleted(completed);
         } else {
-            return repo.findAll();
+            result = repo.findAll();
         }
+
+        return todoListMapper.toDtoList(result);
     }
 
     @Override
@@ -60,11 +71,12 @@ public class TodoListServiceImpl implements TodoListService {
     }
 
     @Override
-    public TodoList update(Long id, TodoList req) {
-        TodoList e = get(id);
-        if (req.getTitle() != null)       e.setTitle(req.getTitle());
-        if (req.getDescription() != null) e.setDescription(req.getDescription());
+    public TodoListResponseDTO update(Long id, TodoListRequestDTO req) {
+        TodoList e = repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Todo not found: " + id));
+        e.setTitle(req.getTitle());
+        e.setDescription(req.getDescription());
         e.setCompleted(req.isCompleted());
-        return repo.save(e);
+        return todoListMapper.toDto(repo.save(e));
     }
 }

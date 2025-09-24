@@ -1,13 +1,14 @@
 package com.venhancer.todoapp.services;
 
-import com.venhancer.todoapp.entity.TodoList;
+import com.venhancer.todoapp.dto.TodoListRequestDTO;
+import com.venhancer.todoapp.dto.TodoListResponseDTO;
 import java.util.List;
 
 public interface TodoListService {
-    TodoList create(TodoList req);
-    List<TodoList> getAllTodoList();
-    TodoList get(Long id);
-    List<TodoList> getTodoListWithParams(String title, Boolean completed);
+    TodoListResponseDTO save(TodoListRequestDTO req);
+    List<TodoListResponseDTO> getAllTodoList();
+    TodoListResponseDTO get(Long id);
+    List<TodoListResponseDTO> getTodoListWithParams(String title, Boolean completed);
     boolean deleteTodoList(Long id);
-    TodoList update(Long id, TodoList req);
+    TodoListResponseDTO update(Long id, TodoListRequestDTO req);
 }
