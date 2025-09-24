@@ -7,5 +7,11 @@ import java.util.List;
 
 public interface TodoListRepository extends JpaRepository<TodoList, Long> {
 
+
     List<TodoList> findByCompleted(boolean completed);
+
+    List<TodoList> findByTitleContaining(String title);
+
+    List<TodoList> findByTitleContainingAndCompleted(String title, boolean completed);
+
 }
