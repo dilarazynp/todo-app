@@ -3,6 +3,8 @@ package com.venhancer.todoapp.services.impl;
 import com.venhancer.todoapp.dto.TodoListRequestDTO;
 import com.venhancer.todoapp.dto.TodoListResponseDTO;
 import com.venhancer.todoapp.entity.TodoList;
+import com.venhancer.todoapp.exception.DuplicateException;
+import com.venhancer.todoapp.exception.NotFoundException;
 import com.venhancer.todoapp.mapper.TodoListMapper;
 import com.venhancer.todoapp.repository.TodoListRepository;
 import com.venhancer.todoapp.services.TodoListService;
@@ -15,7 +17,6 @@ import java.util.List;
 @Service
 public class TodoListServiceImpl implements TodoListService {
 
-
     private final TodoListMapper todoListMapper;
     private final TodoListRepository repo;
 
@@ -25,7 +26,11 @@ public class TodoListServiceImpl implements TodoListService {
     }
 
     @Override
-    public TodoListResponseDTO save(TodoListRequestDTO req) {
+    public TodoListResponseDTO createTodoList(TodoListRequestDTO req) {
+
+        if (repo.existsByTitle(req.getTitle())) {
+            throw new DuplicateException("Todo list with this title already exists: " + req.getTitle());
+        }
         TodoList entity = todoListMapper.toEntity(req);
         TodoList saved  = repo.save(entity);
         return todoListMapper.toDto(saved);
@@ -37,10 +42,10 @@ public class TodoListServiceImpl implements TodoListService {
     }
 
     @Override
-    public TodoListResponseDTO get(Long id) {
-        TodoList e = repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Todo not found: " + id));
-        return todoListMapper.toDto(e);
+    public TodoListResponseDTO getTodoList(Long id) {
+        TodoList todoItem = repo.findById(id)
+                .orElseThrow(() -> new NotFoundException("Todo list not found with id: " + id));
+        return todoListMapper.toDto(todoItem);
     }
 
     @Override
@@ -62,21 +67,27 @@ public class TodoListServiceImpl implements TodoListService {
     }
 
     @Override
-    public boolean deleteTodoList(Long id) {
-        if (repo.existsById(id)) {
-            repo.deleteById(id);
-            return true;
+    public void deleteTodoList(Long id) {
+        if (!repo.existsById(id)) {
+            throw new NotFoundException("Todo list not found with id: " + id);
         }
-        return false;
+        repo.deleteById(id);
     }
 
     @Override
-    public TodoListResponseDTO update(Long id, TodoListRequestDTO req) {
-        TodoList e = repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Todo not found: " + id));
-        e.setTitle(req.getTitle());
-        e.setDescription(req.getDescription());
-        e.setCompleted(req.isCompleted());
-        return todoListMapper.toDto(repo.save(e));
+    public TodoListResponseDTO updateTodoList(Long id, TodoListRequestDTO req) {
+        TodoList todoItem = repo.findById(id)
+                .orElseThrow(() -> new NotFoundException("Todo list not found with id: " + id));
+
+        boolean exists = repo.existsByTitle(req.getTitle());
+        if (exists && !todoItem.getTitle().equals(req.getTitle())) {
+            throw new DuplicateException("Todo list already exists with title: " + req.getTitle());
+        }
+
+        todoItem.setTitle(req.getTitle());
+        todoItem.setDescription(req.getDescription());
+        todoItem.setCompleted(req.isCompleted());
+
+        return todoListMapper.toDto(repo.save(todoItem));
     }
 }

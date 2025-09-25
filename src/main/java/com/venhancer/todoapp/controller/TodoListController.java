@@ -19,23 +19,23 @@ public class TodoListController {
     }
 
     @PostMapping("/add-list")
-    public ResponseEntity<TodoListResponseDTO> save(@RequestBody TodoListRequestDTO todoListRequestDTO){
-      TodoListResponseDTO response = todoListService.save(todoListRequestDTO);
+    public ResponseEntity<TodoListResponseDTO> create(@RequestBody TodoListRequestDTO todoListRequestDTO){
+      TodoListResponseDTO response = todoListService.createTodoList(todoListRequestDTO);
       return ResponseEntity.ok(response);
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<TodoListResponseDTO>> getAllTodoList() {
+    public ResponseEntity<List<TodoListResponseDTO>> getAll() {
         return ResponseEntity.ok(todoListService.getAllTodoList());
     }
 
     @GetMapping("/list/{id}")
     public ResponseEntity<TodoListResponseDTO> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(todoListService.get(id));
+        return ResponseEntity.ok(todoListService.getTodoList(id));
     }
 
     @GetMapping("/list/with-params")
-    public ResponseEntity<List<TodoListResponseDTO>> getToDoListByParams(
+    public ResponseEntity<List<TodoListResponseDTO>> getByParams(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Boolean completed
     ) {
@@ -43,10 +43,9 @@ public class TodoListController {
     }
 
     @DeleteMapping("/delete-list/{id}")
-    public ResponseEntity<Void> deleteTodoList(@PathVariable Long id) {
-        boolean deleted = todoListService.deleteTodoList(id);
-        return deleted ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        todoListService.deleteTodoList(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/update-list/{id}")
@@ -54,6 +53,6 @@ public class TodoListController {
             @PathVariable Long id,
             @RequestBody TodoListRequestDTO req
     ) {
-        return ResponseEntity.ok(todoListService.update(id, req));
+        return ResponseEntity.ok(todoListService.updateTodoList(id, req));
     }
 }

@@ -8,6 +8,8 @@ import java.util.List;
 public interface TodoListRepository extends JpaRepository<TodoList, Long> {
 
 
+    boolean existsByTitle(String title);
+
     List<TodoList> findByCompleted(boolean completed);
 
     List<TodoList> findByTitleContaining(String title);

@@ -5,10 +5,10 @@ import com.venhancer.todoapp.dto.TodoListResponseDTO;
 import java.util.List;
 
 public interface TodoListService {
-    TodoListResponseDTO save(TodoListRequestDTO req);
+    TodoListResponseDTO createTodoList(TodoListRequestDTO req);
     List<TodoListResponseDTO> getAllTodoList();
-    TodoListResponseDTO get(Long id);
+    TodoListResponseDTO getTodoList(Long id);
     List<TodoListResponseDTO> getTodoListWithParams(String title, Boolean completed);
-    boolean deleteTodoList(Long id);
-    TodoListResponseDTO update(Long id, TodoListRequestDTO req);
+    void deleteTodoList(Long id);
+    TodoListResponseDTO updateTodoList(Long id, TodoListRequestDTO req);
 }
