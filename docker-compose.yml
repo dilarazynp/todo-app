@@ -5,9 +5,9 @@ services:
     image: postgres:15
     container_name: todo-postgres
     environment:
-      POSTGRES_DB: todo_db
-      POSTGRES_USER: todo_user
-      POSTGRES_PASSWORD: todo_pass
+      POSTGRES_DB: tododb
+      POSTGRES_USER: todouser
+      POSTGRES_PASSWORD: 1234
     ports:
       - "5432:5432"
     volumes:
@@ -27,9 +27,9 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://todo-postgres:5432/todo_db
-      SPRING_DATASOURCE_USERNAME: todo_user
-      SPRING_DATASOURCE_PASSWORD: todo_pass
+      SPRING_DATASOURCE_URL: jdbc:postgresql://todo-postgres:5432/tododb
+      SPRING_DATASOURCE_USERNAME: todouser
+      SPRING_DATASOURCE_PASSWORD: 1234
     ports:
       - "8081:8080"
     restart: unless-stopped
