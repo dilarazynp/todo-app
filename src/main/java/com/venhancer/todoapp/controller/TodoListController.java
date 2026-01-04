@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/rest/api/todo")
 public class TodoListController {
@@ -26,6 +27,7 @@ public class TodoListController {
 
     @GetMapping("/list")
     public ResponseEntity<List<TodoListResponseDTO>> getAll() {
+        System.out.println("DEPLOY TEST");
         return ResponseEntity.ok(todoListService.getAllTodoList());
     }
 
